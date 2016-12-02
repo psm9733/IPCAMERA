@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<style>
+#dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+#dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+#dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+#dropdown-content a {
+    color: black;
+    text-decoration: none;
+    display: block;
+}
+
+#dropdown-content a:hover {background-color: #f1f1f1}
+
+#dropdown:hover #dropdown-content {
+    display: block;
+}
+
+#dropdown:hover #dropbtn {
+    background-color: #3e8e41;
+}
+</style>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+
+<script>
+$(document).ready(function(){
+    $("#start_btn").click(function(){
+
+ var ts = new Date().getTime();
+        $("#div1").html("<img src='/capture?timestamp=" + ts + "'/>");
+    });
+    $("#config_btn").click(function(event) {
+
+        var formData = $("#config_form").serialize();
+
+        $.get("/config?" + formData, function(data, status) {
+
+            alert(data + "\nStatus: " + status);
+        });
+        event.preventDefault();
+    });
+});
+
+function fix_resolution(){
+	if(document.getElementById("det").checked == true){
+		document.getElementById("lhd").checked = true;
+		document.getElementById("ori").checked = true;
+		document.getElementById("hd").disabled = true;
+  		document.getElementById("fhd").disabled = true;
+		document.getElementById("ori").disabled = false;
+		document.getElementById("blu").disabled = true;
+		document.getElementById("emb").disabled = true;
+		document.getElementById("car").disabled = true;
+		document.getElementById("rem").disabled = true;
+		document.getElementById("nag").disabled = true;
+	}else if(document.getElementById("cap").checked == true || document.getElementById("str").checked == true){
+ 		document.getElementById("hd").disabled = false;
+  		document.getElementById("fhd").disabled = false;
+		document.getElementById("ori").disabled = false;
+		document.getElementById("blu").disabled = false;
+		document.getElementById("emb").disabled = false;
+		document.getElementById("car").disabled = false;
+		document.getElementById("rem").disabled = false;
+		document.getElementById("nag").disabled = false;
+	}
+}
+function reset(){
+	location.reload();
+}
+
+function start_display(){
+	div1.style.display = ""; 
+	div2.style.display = "none";
+}
+function detectmode_display(){
+	div1.style.display = "none"; 
+	div2.style.display = ""; 
+}
+
+function Detecting_list() {
+	var myArr = {{wjson|safe}};
+	var length = myArr.length;
+	document.getElementById("dropdown-content").innerHTML = "";
+	if(length == 1){
+		var str = '<a>' + myArr[i] + '</a>';
+		document.getElementById("dropdown-content").innerHTML += str;
+	}else{
+		for (var i = 0; i < length-1; i++){
+			var str = '<a>' + myArr[i] + '</a>';
+			document.getElementById("dropdown-content").innerHTML += str;
+			document.getElementById("video_div").innerHTML = "";
+			$("#video_div").html("<video src='/send_video?' controls>")
+		}
+	}
+};
+
+
+</script>
+
+</head>
+
+
+
+
+<body onload = "start_display()">
+
+<h2> IPCamera 1294058 박상민, 1294062 백승환</h2>
+
+
+
+
+<table border = "1">
+
+<tr>
+
+<th width = "200">Annotate Text</th>
+
+<th width = "300">Mode</th>
+
+<th width = "400">Image_effect</th>
+
+<th width = "300">Resolution</th>
+
+</tr>
+
+<form id = "config_form">
+
+<tr>
+
+<td><input type="text" name="annotate" value="CAM1" size = 25px><br/><br/><br/></td>
+
+<td><input type="radio" name="mode" onclick = "fix_resolution(), start_display()" value="0" id = "cap"checked> Capture Mode<br>
+
+  <input type="radio" name="mode" onclick = "fix_resolution(), start_display()" value="1" id = "str"> Streaming Mode<br>
+
+  <input type="radio" name="mode" onclick = "fix_resolution(), detectmode_display()" value="2" id = "det"> Detection Mode<br>
+
+</td>
+<td>
+		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+	<input type="radio" name="effect" value="0" id = "ori"checked> Original
+
+
+
+		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+		&nbsp&nbsp
+
+	<input type="radio" name="effect" value="1" id = "blu"> Blurring <br>
+
+  		
+		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+	<input type="radio" name="effect" value="2" id = "emb"> Embossing 
+
+
+
+		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+
+	<input type="radio" name="effect" value="3" id = "car"> Cartoon <br>
+
+		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+	<input type="radio" name="effect" value="4" id = "rem"> Remove noise  
+
+
+
+		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+	<input type="radio" name="effect" value="5" id = "nag"> Nagative  
+
+</td>
+<td>
+
+  <input type="radio" name="resolution" value="1920x1080" id = "fhd" checked> 1920x1080<br>
+
+  <input type="radio" name="resolution" value="1280x720" id = "hd"> 1280x720<br>
+
+  <input type="radio" name="resolution" value="640x480" id = "lhd"> 640x480<br>
+
+  <button id="config_btn">setting Save</button>
+
+</td>
+
+
+</tr>
+
+</form>
+
+</table>
+
+
+<hr>
+
+<button id="reset_btn" onclick = "reset()">Reset</button>
+<button id="start_btn">Start IPCamera</button>
+
+<div id="div1" style = "text-align: center; max-width:1255px" ><h1>--------------empty--------------</h1></div>
+<div id="div2" >
+			<table border="1" width="1270">
+				<tr width ="1200">
+				<th colspan="2">Motion Detection</th>
+				</tr>
+				<tr>
+					<td width="300" align = "center">FileName</td>
+					<td width="900" align = "center">영상 재생</td>
+				</tr>
+				<tr>
+					<td >
+					
+					<div id="dropdown" align = "center">
+						
+  							<button id="dropbtn" onclick = "Detecting_list()">Detectin_filelist</button>
+  							<div id ="dropdown-content">
+  							</div>
+
+					</div>
+					
+					</td>
+					<td>
+					<div id="video_div" align = "center">     </div>
+					</td>
+				</tr>
+				
+			</table>
+<div id = test>
+
+</div>
+</div>
+
+</body>
+
+</html>
+
