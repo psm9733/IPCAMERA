@@ -12,7 +12,6 @@ import random
 import os,subprocess
 from subprocess import Popen,PIPE
 import json
-import os
 
 app = Flask(__name__)
 mode = 0
@@ -168,7 +167,6 @@ def capture():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
         else:
                     try:
-                        
                         lck.acquire()
                         camera = picamera.PiCamera()
                         camera.resolution = set_resolution(resolution)
@@ -194,8 +192,10 @@ def capture():
                                     camera.wait_recording(5)
         
                                     print('Motion stopped!')
+                                    lck.acquire()
                                     cmd = ["MP4Box","-fps","30","-add",filepath + filename+"after.h264",filepath + filename+"after.mp4"]
                                     popen = subprocess.Popen(cmd)
+                                    lck.release()
                                     # json filemake 
                                     #rfile = open("/home/pi/Desktop/project/info_Filename.txt", 'r')
                                     #wfile = open("/home/pi/Desktop/project/info_JSON.txt",'w')
