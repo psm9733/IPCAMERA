@@ -1,4 +1,4 @@
-from flask import Flask, send_file, render_template, request, Response
+from flask import Flask, send_file, render_template, request, Response, make_response
 import picamera
 from camera_module import set_resolution, get_width, get_height
 from f_module import F_save, F_read
@@ -13,12 +13,15 @@ import os,subprocess
 from subprocess import Popen,PIPE
 import json
 
+
+
 app = Flask(__name__)
 mode = 0
 effect = 0
 lck = Lock()
 threshold =40
 prior_image = None
+bright = 0
 
 def detect_motion(camera):
     print "detect_motion"
@@ -67,6 +70,7 @@ def get_frame():
                 lck.acquire()
                 camera.annotate_text = annotate
                 camera.resolution = set_resolution(resolution)
+                camera.brightness = bright
                 if effect == 0:
                     camera.image_effect = 'none'
                 elif effect == 1:
@@ -76,7 +80,7 @@ def get_frame():
                 elif effect == 3:
                     camera.image_effect = 'cartoon'
                 elif effect == 4:
-                    camera.image_effect = 'donoise'
+                    camera.image_effect = 'denoise'
                 elif effect == 5:
                     camera.image_effect = 'negative'
                 print "resolution"
@@ -96,23 +100,34 @@ def index():
         wfile = wfile.read()
         lines = wfile.split("\n")
         return render_template('config.html', wjson = json.dumps(lines))
-    
-@app.route('/send_video')
-def send_video():     
-        rfile = open("/home/pi/Desktop/project/info_Filename.txt", 'r')
-        lines = rfile.read()
-        index = 0
-        lines = lines.split('\n')
-        size = len(lines) - 1
-        for line in lines:
-            if (index == size-1):
-                filepath = "/home/pi/Desktop/project/storage/" + line
-                break
-            index = index + 1
-        print "filepath = " + filepath
-        return send_file(filepath)
-        
 
+@app.route('/send_video' ,methods=['GET'])
+def send_video():
+        global filepath
+        
+        #filenames = request.form['multiple']
+        filenames = request.args.get('multiple','')
+        
+        filenames = str(filenames)
+        #ret_data = {"value": filenames}
+        filepath = "/home/pi/Desktop/project/storage/"+filenames
+        print filenames
+        print filepath
+        print os.path.exists(filepath)
+        
+        #return send_file(filepath, mimetype = "video/mp4")
+        return "hi"
+
+#@app.route('/getvideo')
+#def getvideo():
+#        global filepath
+#       
+#        print filepath      
+#        return send_file(filepath, mimetype = "video/mp4")
+        
+@app.route('/get_video' ,methods=['GET'])
+def get_video():
+    return send_file(filepath, mimetype = "video/mp4")
     
 @app.route('/config')
 def config():
@@ -121,21 +136,24 @@ def config():
         mode = request.args.get('mode', '')
         effect = request.args.get('effect', '')
         resolution = request.args.get('resolution', '')
+        bright = request.args.get('bright','')
         print annotate, mode, resolution, effect
         
         F_save("annotate", annotate)
         F_save("mode", mode)
         F_save("effect", effect)
         F_save("resolution", resolution)
+        F_save("bright", bright)
         pid=F_read("pid")
         os.kill(int(pid), signal.SIGUSR1)
         return 'OK'
 
 @app.route('/capture')
 def capture():
-        global mode, effect
+        global mode, effect,bright
         mode = int(F_read("mode"))
         effect = int(F_read("effect"))
+        bright = int(F_read("bright"))
         if mode == 0:
             try:       
                 print "capture camera"
@@ -143,6 +161,7 @@ def capture():
                 lck.acquire()
                 camera.annotate_text = annotate
                 camera.resolution = set_resolution(resolution)
+                camera.brightness = bright
                 if effect == 0:
                     camera.image_effect = 'none'
                 elif effect == 1:
@@ -167,6 +186,7 @@ def capture():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
         else:
                     try:
+                        
                         lck.acquire()
                         camera = picamera.PiCamera()
                         camera.resolution = set_resolution(resolution)
@@ -192,10 +212,8 @@ def capture():
                                     camera.wait_recording(5)
         
                                     print('Motion stopped!')
-                                    lck.acquire()
                                     cmd = ["MP4Box","-fps","30","-add",filepath + filename+"after.h264",filepath + filename+"after.mp4"]
                                     popen = subprocess.Popen(cmd)
-                                    lck.release()
                                     # json filemake 
                                     #rfile = open("/home/pi/Desktop/project/info_Filename.txt", 'r')
                                     #wfile = open("/home/pi/Desktop/project/info_JSON.txt",'w')

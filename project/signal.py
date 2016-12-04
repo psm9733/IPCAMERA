@@ -10,7 +10,7 @@ mode = 0
 effect = 0
 resolution = "1920x1080"
 annotate="CAM1"
-
+bright = 0
 def signal_handler(signum, frame):
         global resolution, annotate, mode, effect
         lck.acquire()
@@ -19,10 +19,12 @@ def signal_handler(signum, frame):
         mode = int(F_read("mode"))
         effect = int(F_read("effect"))
         resolution = F_read("resolution")
+        bright = int(F_read("bright"))
         print annotate
         print mode
         print effect 
         print resolution
+        print bright
         lck.release()
 
 signal.signal(signal.SIGUSR1, signal_handler)
