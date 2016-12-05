@@ -7,7 +7,6 @@ from threading import Lock
 import time
 from time import sleep
 import numpy as np
-import io
 import random
 import os,subprocess
 from subprocess import Popen,PIPE
@@ -44,7 +43,7 @@ def detect_motion(camera):
         print(numTrigger)
         width = get_width(resolution)
         height = get_height(resolution)
-        minPixelsChanged= width*height*32/100
+        minPixelsChanged= width*height*50/100
         print(minPixelsChanged)
         lck.release()
         
@@ -116,15 +115,8 @@ def send_video():
         print os.path.exists(filepath)
         
         #return send_file(filepath, mimetype = "video/mp4")
-        return "hi"
-
-#@app.route('/getvideo')
-#def getvideo():
-#        global filepath
-#       
-#        print filepath      
-#        return send_file(filepath, mimetype = "video/mp4")
-        
+        return "Ok"
+     
 @app.route('/get_video' ,methods=['GET'])
 def get_video():
     return send_file(filepath, mimetype = "video/mp4")
@@ -181,12 +173,10 @@ def capture():
                 camera.close()
             return send_file('/home/pi/Desktop/project/new_image.jpg')
         elif mode == 1:
-                
                 return Response(gen(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
         else:
-                    try:
-                        
+                    try:   
                         lck.acquire()
                         camera = picamera.PiCamera()
                         camera.resolution = set_resolution(resolution)
@@ -247,10 +237,9 @@ def capture():
                                                 #roof_number = roof_number + 1
                                     #wfile.write("}\n")
                                     #wfile.write("]\n")
-                                    F_save("Filename", "\n" , "a")
                                     #wfile.close()
                                     #rfile.close()
-
+                                    F_save("Filename", "\n" , "a")
                                     camera.split_recording(stream)
                             if mode != 2:
                                 camera.stop_recording()
