@@ -1,10 +1,7 @@
 			<!DOCTYPE html>
 <html>
 <head>
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-
-
 <script>
 //var $SCRIPT_ROOT = {{ request.script_root|tojson|safe}};
 $(document).ready(function(){
@@ -18,14 +15,12 @@ $(document).ready(function(){
         var formData = $("#config_form").serialize();
 
         $.get("/config?" + formData, function(data, status) {
-
             alert(data + "\nStatus: " + status);
         });
         event.preventDefault();
     });
 	$("#dropdown-content").on('change',function(){
 		//var formData2 = $("#selectform").serialize();
-		
 		$.ajax({
 			url:"/send_video",
 			data: $("#selectform").serialize(),
@@ -35,22 +30,15 @@ $(document).ready(function(){
 			success : function(e){
 				console.log(e.responseText);
 				$("#test").html(e.value)
-				
-			
 			},
 			error : function(r,s,e){
 				alert("code:"+r.status+"\n"+"message:"+r.responeText+"\n"+"error:"+r);
 			},
-		
 		});
-		
-		
-            			
 	});
 	$("#video_btn").click(function(){
 			var ts = new Date().getTime();
-		 $("#video_div").html("<video autoplay='autoplay' controls='controls'> <source src= '/get_video?timestamp=" + ts + "' type='video/mp4'/> </video>");
-		 
+		 $("#video_div").html("<video autoplay='autoplay' controls='controls'> <source src= '/get_video?timestamp=" + ts + "' type='video/mp4'/> </video>");	 
 	});
 });
 
@@ -103,26 +91,15 @@ function Detecting_list() {
 			//var str = '<option id='+i+' value='+myArr[i]+' >'+myArr[i]+'</option>';
 			$("#dropdown-content").append('<option id='+i+' value='+myArr[i]+' >'+myArr[i]+'</option>');
 			//document.getElementById("dropdown-content").innerHTML += str;
-			
 			//$("#video_div").html("<video src='/send_video?' controls>")
-		
 	}
 };
-
-
 </script>
-
 </head>
-
-
-
-
+	
 <body onload = "start_display()">
 
 <h2> IPCamera 1294058 박상민, 1294062 백승환</h2>
-
-
-
 
 <table border = "1">
 
@@ -190,13 +167,12 @@ function Detecting_list() {
 
   <input type="radio" name="resolution" value="640x480" id = "lhd"> 640x480<br>
 
-  
-
 </td>
 <td>
 bright <input type="number" min="0" max="100" name="bright" id="bri" value = "50" required></input> 
 <br>
 <button id="config_btn">setting Save</button>
+	
 </td>
 
 </tr>
@@ -204,7 +180,6 @@ bright <input type="number" min="0" max="100" name="bright" id="bri" value = "50
 </form>
 
 </table>
-
 
 <hr>
 
@@ -223,27 +198,21 @@ bright <input type="number" min="0" max="100" name="bright" id="bri" value = "50
 				</tr>
 				<tr>
 					<td >
-					
-					<div id="dropdown" align = "center">
-						
+					<div id="dropdown" align = "center">		
   							<button id="dropbtn" onclick = "Detecting_list()">Detectin_filelist</button>
   							
 								<form id="selectform">
 								<select id="dropdown-content" name="multiple">
-								
-									
+												
 								</select>  								
 								</form>
-  	
 					</div>
-					
 					</td>
 					<td>
 					<div id="video_div" align = "center">     </div>
 					<button id="video_btn">Start IPCamera</button>
 					</td>
 				</tr>
-				
 			</table>
 <div id = "test">
 
@@ -251,9 +220,6 @@ bright <input type="number" min="0" max="100" name="bright" id="bri" value = "50
 
 </div>
 
-
 </body>
 
 </html>
-
-
